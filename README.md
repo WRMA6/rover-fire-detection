@@ -1,0 +1,19 @@
+# Fire Detection Image Processing Project
+
+This project was made in a group of four, modelled as a possible answer to a real world problem: forest fires. We made a rover that could move and send pictures that it takes via BlueTooth, and a Java program that can receive the images and process it to determine whether or not the image contains a fire.
+
+The program runs on four components: the rover (ie. the hardware) and the Arduino code to control it, Processing code which is used to program the rover's path, Java ImageIO and Swing to receive images via bluetooth and make the GUI and Java again along with JAMA.matrix to implement the image processing algorithm.
+
+Setting up and running the whole program will require a lot of work. Firstly, all of the IDE's (for Arduino, Processing and Java) will be required. In addition, the software for Arducam (the camera) must also be installed. Finally, an Arduino robot with BlueTooth and an Arducam will also be required. An easier way to test the code has been added, where the Java program will simply take a file path to an input image an process it from there.
+
+Here is a detailled explanation of the image analysis process:
+
+To analyze the images, we partition them into small segments and loop through each segment. Using the the matrix class in Java, we take averages for red, green and blue pigment values in each small segment and then transform them linearly into the “YCbCr” color space. The standard matrix for this linear transformation was obtained in our background research. For the purpose of our project, we considered only the Cr component (red-difference chroma) component as one of our main indicators for fire, since we need to statistically analyze our indicators and manually identify fires in a sample of images, and would not be able to do this for too many indicators. 
+
+Our program “counts” the number of pixels that meet certain thresholds for Cr, as well as additional considerations on the original red, green and blue and saves this value. These considerations and thresholds were determined by running our program on 25 fire images and 25 non-fire images. At this point in the implementation, 21 fire images (84%) and 18 non-fire images (72%) could be “fitted” into thresholds in order for our evaluation to be correct (78% overall).
+
+Too many false-positives occured with one indicator, so we decided to add another. For the next indicator, our program goes through the image again and analyzes the difference between pixels and their surrounding edges using the Sobel operator. We noticed that colour differences within a fire could also be used as an indicator in conjunction with the Cr component. Counting the number of pixels that pass a threshold (determined experimentally), we combine this count with our first count and now consider this value from the combined indicators. Finally, we run the image through several case-related checks. This helps eliminate several common cases of false positives. For example, we found that the red clouds observed shortly after the sun sets below the horizon could potentially have a colour distribution very similar to that of a fire. However, we noticed that these clouds are often surrounded by blue or purple skies, colours which would not usually appear around a fire. As a result, we were able to implement an additional check for blue pigments around the “fire” and successfully allow the algorithm to correctly detect no presence of a fire in these instances. Now, 24 fire images (96%) and 20 non-fire images (8%) could be “fitted” into thresholds in order for our evaluation to be correct (88% overall).
+
+Shown below is the program in action and the robot:
+![](/FireDetectionProject.gif?raw=true "Screencap")
+![](/Robot.jpg?raw=true "Portrait")
